@@ -22,15 +22,10 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         [Fact]
         public async Task Page_Handler_FormAction()
         {
-            // Arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage/Customer");
-
-            // Act
-            var response = await Client.SendAsync(request);
+            // Arrange & Act
+            var content = await Client.GetStringAsync("http://localhost/HandlerTestPage/Customer");
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var content = await response.Content.ReadAsStringAsync();
             Assert.StartsWith("Method: OnGetCustomer", content.Trim());
         }
 
@@ -38,13 +33,12 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         public async Task Page_Handler_Async()
         {
             // Arrange
-            var getRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage");
-            var getResponse = await Client.SendAsync(getRequest);
+            var getResponse = await Client.GetAsync("http://localhost/HandlerTestPage");
             var getResponseBody = await getResponse.Content.ReadAsStringAsync();
-            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/CustomActionResultPage");
+            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/ModelHandlerTestPage");
             var cookie = AntiforgeryTestHelper.RetrieveAntiforgeryCookie(getResponse);
 
-            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/PageCustomActionResultPage");
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/HandlerTestPage");
             postRequest.Headers.Add("Cookie", cookie.Key + "=" + cookie.Value);
             postRequest.Headers.Add("RequestVerificationToken", formToken);
 
@@ -60,15 +54,10 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         [Fact]
         public async Task Page_Handler_AsyncFormAction()
         {
-            // Arrange
-            var postRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage/ViewCustomer");
-
-            // Act
-            var response = await Client.SendAsync(postRequest);
+            // Arrange & Act
+            var content = await Client.GetStringAsync("http://localhost/HandlerTestPage/ViewCustomer");
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var content = await response.Content.ReadAsStringAsync();
             Assert.StartsWith("Method: OnGetViewCustomerAsync", content.Trim());
         }
 
@@ -76,13 +65,12 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         public async Task Page_Handler_ReturnTypeImplementsIActionResult()
         {
             // Arrange
-            var getRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage?message=message");
-            var getResponse = await Client.SendAsync(getRequest);
+            var getResponse = await Client.GetAsync("http://localhost/HandlerTestPage");
             var getResponseBody = await getResponse.Content.ReadAsStringAsync();
-            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/CustomActionResultPage");
+            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/ModelHandlerTestPage");
             var cookie = AntiforgeryTestHelper.RetrieveAntiforgeryCookie(getResponse);
 
-            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/PageCustomActionResultPage/CustomActionResult");
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/HandlerTestPage/CustomActionResult");
             postRequest.Headers.Add("Cookie", cookie.Key + "=" + cookie.Value);
             postRequest.Headers.Add("RequestVerificationToken", formToken);
             // Act
@@ -97,15 +85,10 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         [Fact]
         public async Task Page_Handler_AsyncReturnTypeImplementsIActionResult()
         {
-            // Arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage/CustomActionResult");
-
-            // Act
-            var response = await Client.SendAsync(request);
+            // Arrange & Act
+            var content = await Client.GetStringAsync("http://localhost/HandlerTestPage/CustomActionResult");
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var content = await response.Content.ReadAsStringAsync();
             Assert.Equal("CustomActionResult", content);
         }
 
@@ -113,15 +96,10 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         [Fact]
         public async Task PageModel_Handler_FormAction()
         {
-            // Arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage/Customer");
-
-            // Act
-            var response = await Client.SendAsync(request);
+            // Arrange & Act
+            var content = await Client.GetStringAsync("http://localhost/ModelHandlerTestPage/Customer");
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var content = await response.Content.ReadAsStringAsync();
             Assert.StartsWith("Method: OnGetCustomer", content.Trim());
         }
 
@@ -129,13 +107,12 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         public async Task PageModel_Handler_Async()
         {
             // Arrange
-            var getRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage");
-            var getResponse = await Client.SendAsync(getRequest);
+            var getResponse = await Client.GetAsync("http://localhost/ModelHandlerTestPage");
             var getResponseBody = await getResponse.Content.ReadAsStringAsync();
-            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/CustomActionResultPage");
+            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/ModelHandlerTestPage");
             var cookie = AntiforgeryTestHelper.RetrieveAntiforgeryCookie(getResponse);
 
-            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/CustomActionResultPage");
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/ModelHandlerTestPage");
             postRequest.Headers.Add("Cookie", cookie.Key + "=" + cookie.Value);
             postRequest.Headers.Add("RequestVerificationToken", formToken);
 
@@ -151,15 +128,10 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         [Fact]
         public async Task PageModel_Handler_AsyncFormAction()
         {
-            // Arrange
-            var postRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage/ViewCustomer");
-
-            // Act
-            var response = await Client.SendAsync(postRequest);
+            // Arrange & Act
+            var content = await Client.GetStringAsync("http://localhost/ModelHandlerTestPage/ViewCustomer");
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var content = await response.Content.ReadAsStringAsync();
             Assert.StartsWith("Method: OnGetViewCustomerAsync", content.Trim());
         }
 
@@ -167,13 +139,12 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         public async Task PageModel_Handler_ReturnTypeImplementsIActionResult()
         {
             // Arrange
-            var getRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage?message=message");
-            var getResponse = await Client.SendAsync(getRequest);
+            var getResponse = await Client.GetAsync("http://localhost/ModelHandlerTestPage");
             var getResponseBody = await getResponse.Content.ReadAsStringAsync();
-            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/CustomActionResultPage");
+            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/ModelHandlerTestPage");
             var cookie = AntiforgeryTestHelper.RetrieveAntiforgeryCookie(getResponse);
 
-            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/CustomActionResultPage/CustomActionResult");
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/ModelHandlerTestPage/CustomActionResult");
             postRequest.Headers.Add("Cookie", cookie.Key + "=" + cookie.Value);
             postRequest.Headers.Add("RequestVerificationToken", formToken);
             // Act
@@ -188,15 +159,10 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         [Fact]
         public async Task PageModel_Handler_AsyncReturnTypeImplementsIActionResult()
         {
-            // Arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage/CustomActionResult");
-
-            // Act
-            var response = await Client.SendAsync(request);
+            // Arrange & Act
+            var content = await Client.GetStringAsync("http://localhost/ModelHandlerTestPage/CustomActionResult");
 
             // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            var content = await response.Content.ReadAsStringAsync();
             Assert.Equal("CustomActionResult", content);
         }
 

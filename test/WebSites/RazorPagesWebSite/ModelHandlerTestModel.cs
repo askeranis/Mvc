@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace RazorPagesWebSite
 {
-    public class CustomActionResultModel : PageModel
+    public class ModelHandlerTestModel : PageModel
     {
         public string MethodName { get; set; }
 
