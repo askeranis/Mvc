@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -22,7 +23,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         public async Task Page_Handler_FormAction()
         {
             // Arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage/Customer");
+            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage/Customer");
 
             // Act
             var response = await Client.SendAsync(request);
@@ -35,6 +36,97 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
 
         [Fact]
         public async Task Page_Handler_Async()
+        {
+            // Arrange
+            var getRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage");
+            var getResponse = await Client.SendAsync(getRequest);
+            var getResponseBody = await getResponse.Content.ReadAsStringAsync();
+            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/CustomActionResultPage");
+            var cookie = AntiforgeryTestHelper.RetrieveAntiforgeryCookie(getResponse);
+
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/PageCustomActionResultPage");
+            postRequest.Headers.Add("Cookie", cookie.Key + "=" + cookie.Value);
+            postRequest.Headers.Add("RequestVerificationToken", formToken);
+
+            // Act
+            var response = await Client.SendAsync(postRequest);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.StartsWith("Method: OnPostAsync", content.Trim());
+        }
+
+        [Fact]
+        public async Task Page_Handler_AsyncFormAction()
+        {
+            // Arrange
+            var postRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage/ViewCustomer");
+
+            // Act
+            var response = await Client.SendAsync(postRequest);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.StartsWith("Method: OnGetViewCustomerAsync", content.Trim());
+        }
+
+        [Fact]
+        public async Task Page_Handler_ReturnTypeImplementsIActionResult()
+        {
+            // Arrange
+            var getRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage?message=message");
+            var getResponse = await Client.SendAsync(getRequest);
+            var getResponseBody = await getResponse.Content.ReadAsStringAsync();
+            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/CustomActionResultPage");
+            var cookie = AntiforgeryTestHelper.RetrieveAntiforgeryCookie(getResponse);
+
+            var postRequest = new HttpRequestMessage(HttpMethod.Post, "http://localhost/PageCustomActionResultPage/CustomActionResult");
+            postRequest.Headers.Add("Cookie", cookie.Key + "=" + cookie.Value);
+            postRequest.Headers.Add("RequestVerificationToken", formToken);
+            // Act
+            var response = await Client.SendAsync(postRequest);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.Equal("CustomActionResult", content);
+        }
+
+        [Fact]
+        public async Task Page_Handler_AsyncReturnTypeImplementsIActionResult()
+        {
+            // Arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/PageCustomActionResultPage/CustomActionResult");
+
+            // Act
+            var response = await Client.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.Equal("CustomActionResult", content);
+        }
+
+
+        [Fact]
+        public async Task PageModel_Handler_FormAction()
+        {
+            // Arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage/Customer");
+
+            // Act
+            var response = await Client.SendAsync(request);
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.StartsWith("Method: OnGetCustomer", content.Trim());
+        }
+
+        [Fact]
+        public async Task PageModel_Handler_Async()
         {
             // Arrange
             var getRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage");
@@ -57,7 +149,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         }
 
         [Fact]
-        public async Task Page_Handler_AsyncFormAction()
+        public async Task PageModel_Handler_AsyncFormAction()
         {
             // Arrange
             var postRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage/ViewCustomer");
@@ -72,7 +164,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         }
 
         [Fact]
-        public async Task Page_Handler_ReturnTypeImplementsIActionResult()
+        public async Task PageModel_Handler_ReturnTypeImplementsIActionResult()
         {
             // Arrange
             var getRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage?message=message");
@@ -94,7 +186,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         }
 
         [Fact]
-        public async Task Page_Handler_AsyncReturnTypeImplementsIActionResult()
+        public async Task PageModel_Handler_AsyncReturnTypeImplementsIActionResult()
         {
             // Arrange
             var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/CustomActionResultPage/CustomActionResult");
@@ -296,6 +388,7 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             // Act2
             response = await Client.SendAsync(request);
 
+            // Assert 2
             var content = await response.Content.ReadAsStringAsync();
             Assert.Equal("Hi1", content.Trim());
         }
@@ -317,9 +410,10 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             request = new HttpRequestMessage(HttpMethod.Get, response.Headers.Location);
             request.Headers.Add("Cookie", GetCookie(response));
 
-            // Act2
+            // Act 2
             response = await Client.SendAsync(request);
 
+            // Assert 2
             var content = await response.Content.ReadAsStringAsync();
             Assert.Equal("Hi2", content.Trim());
         }
